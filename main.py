@@ -18,46 +18,15 @@ def main():
     # test_images = test_images[0:100,:]
     # test_labels = test_labels[0:100]
 
-    #1-pad the images
-    train_images = ut.padOnes(train_images)
-    test_images = ut.padOnes(test_images)
-    train_labels = ut.oneHotEncoding(train_labels)
-    test_labels = ut.oneHotEncoding(test_labels)
-    
-    # initiate logistical regression with cross entropy
-    soft = sr.SoftMax(train_images.shape[1], classes)
+    # initiate 2 layer Neural Network with Softmax outputs and Logistic hidden layer
+    nn = sr.TwoLayerNN(train_images.shape[1], 64, 10)
 
-    # Number of iterations (Upper bound before holdout)
-    itera = 1000
-    n0 = .000000001
-    T = 100
+    # Train the Neural Network
+    nn.train(train_images, train_labels, iter=100, n0=0.001,T=100, minibatch=128,
+    earlyStop=3, reg=0.0001, regNorm = 2, isPlot = False)
 
-    # Should we plot the errors
-    isLog = True
-
-    # Regularization constant. Set to zero for normal batch gradient descent.
-    regConst = .000001
-
-    # Norm used for regularization 1 or 2 only.
-    normReg = 2
-
-    # Gradient Descent
-    finalWeights = sd.gradient_descent(
-        train_images, # Images trained on
-        train_labels, # Correct labels
-        classes,
-        soft, # Neural Network
-        itera, # iterations
-        n0, # initial learning rate
-        T, # annealing factor
-        test_images,
-        test_labels,
-        regConst,
-        normReg,
-        isLog
-    )
-
-    print "Error Rate: " + str(100 * ut.error_rate3(soft.run(test_images), test_labels)) + str("%")
+    # Test the Neural Network
+    print "Error Rate: " + str(100 * nn.test(test_images,test_labels)) + str("%")
 
 if __name__ == '__main__':
     main()

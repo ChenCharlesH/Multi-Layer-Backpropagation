@@ -2,9 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-# File to hold all helper functions.
-
-# Calulate regularization const for L1
+EXP_CLIP = 100
 
 
 # Get numbers in list
@@ -21,7 +19,7 @@ def getTT(images, labels, numbers = [2, 3], labelAs=[1, 0]):
     return np.array(resX), np.array(resY)
 
 # Get subset of images belonging to the array passed
-def getSubset(images, labels, values):
+def get_subset(images, labels, values):
     resX = []
     resY = []
     for i in range(0, len(values)):
@@ -30,7 +28,7 @@ def getSubset(images, labels, values):
         resY.append(values[i])
     return np.array(resX), np.array(resY)
 
-def getHoldout(images, labels, fraction):
+def get_holdout(images, labels, fraction):
     s = images.shape[0]
     randomVal = np.random.rand(s)
     idx = randomVal<=fraction
@@ -41,22 +39,8 @@ def getHoldout(images, labels, fraction):
     train_labels = labels[idx]
     return train_images, train_labels, holdout_images, holdout_labels
 
-# Splits the labels and images into fractions for divisons.
-def getHoldout_OHE(images, labels, ohe_labels, fraction):
-    s = images.shape[0]
-    randomVal = np.random.rand(s)
-    idx = randomVal<=fraction
-    holdout_images = images[idx]
-    holdout_labels = labels[idx]
-    holdout_ohe_labels = ohe_labels[idx, :]
-    idx = randomVal>fraction
-    train_images = images[idx]
-    train_labels = labels[idx]
-    train_ohe_labels = ohe_labels[idx, :]
-    return train_images, train_labels, train_ohe_labels, holdout_images, holdout_labels, holdout_ohe_labels
-
-# 1-pad input data 
-def padOnes(images):
+# 1-pad input data
+def pad_ones(images):
 	s = images.shape
 	res = np.ones(shape=(s[0], s[1] + 1))
 	res[:, 1:] = images
@@ -98,12 +82,8 @@ def k_avg_entropy(Y, T):
 def avg_cross_entropy(T, Y):
     return cross_entropy(T, Y) / T.shape[0]
 
-# Clipped values due to overflow
-def sig(x):
-    return 1 / (1 + math.exp(-np.clip(x, -500, 30)))
-
-# Return error rate of softmax result.
-def error_rate(res, givenLabel):
+# Return error rate of category results
+def error_rate_label(res, givenLabel):
     err = 0
     res = round(res)
     for x in range(0, len(res)):
@@ -111,8 +91,8 @@ def error_rate(res, givenLabel):
             err += 1
     return ((float)(err)) / givenLabel.size
 
-
-def error_rate3(res, givenLabel):
+# Return error rate of softmax.
+def error_rate(res, givenLabel):
     err = 0
     labels1 = np.argmax(res,axis=1)
     labels2 = np.argmax(givenLabel,axis=1)
@@ -123,23 +103,42 @@ def error_rate3(res, givenLabel):
 
 # Custum round function to round by clipping.
 def round(res):
-    res = np.clip(np.around(res, decimals=0), 0, 1)
-    return res
+    return np.clip(np.around(res, decimals=0), 0, 1)
 
-def oneHotEncoding(labels):
+# Returns one hot encoding of images.
+def one_hot_encoding(labels):
     res = np.zeros((labels.shape[0],10))
     for i in range(0,len(labels)):
         res[i,int(labels[i])] = 1
     return res
 
-# Custom function to find derivative of absolute value function
-def d_abs(x):
-    if x==0:
-        return 0
-    return abs(x) / x
+# Returns the gradient for L1 normalization
+def l1_grad(x):
+    return np.sign(x)
 
-# Vectorized version of the sigma function.
-vect_sig = np.vectorize(sig)
+# Returns the gradient for L2 normalization
+def l2_grad(x):
+    return 2*x;
 
-# Vectorized version of the derivative of the absolute value function.
-vect_d_abs = np.vectorize(d_abs)
+# Logistic activation function
+def logistic(x):
+    return 1 / (1 + np.exp(-np.clip(x, -EXP_CLIP, EXP_CLIP)))
+
+# Softmax activation function
+def softmax(x):
+    res = np.exp(-np.clip(x, -EXP_CLIP, EXP_CLIP))
+    res_sum = res.sum(axis=1)
+    res = res / res_sum[:, np.newaxis]
+    return res
+
+def batch(train_images, train_labels, b, minibatch):
+    rows = train_images.shape[0]
+    start = b*minibatch;
+    end = (b+1)*minibatch if ((b+1) * minibatch<rows) else rows
+    batch_images = train_images[start:end]
+    batch_labels = train_labels[start:end]
+    return batch_images, batch_labels
+
+# Government z-score
+def zscore(images):
+    return (images/127.5)-1

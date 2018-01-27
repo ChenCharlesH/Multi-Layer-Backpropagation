@@ -31,11 +31,13 @@ def gradient_descent(dataM, labels, classes, neural, numIter, n0, T, test_images
 
     # Loop through data
     for t in range(0, numIter):
-        errorOld = ut.error_rate3(neural.run(holdout_images), holdout_labels)
+        errorOld = ut.error_rate(neural.run(holdout_images), holdout_labels)
         n = n0/(1+t/float(T))
-        W = W + n * gradient2(neural.run(train_images),train_labels, train_images) + n * regConst * lx_gradient(W, train_images.shape[0], normNum)
+
+        # Need to remove
+        W = W + n * gradient(neural.run(train_images),train_labels, train_images) + n * regConst * lx_gradient(W, train_images.shape[0], normNum)
         neural.W = W
-        errorNew = ut.error_rate3(neural.run(holdout_images), holdout_labels)
+        errorNew = ut.error_rate(neural.run(holdout_images), holdout_labels)
         print errorNew
 
         # Logic to detect if we should stop due to hold-out.
@@ -62,48 +64,6 @@ def gradient_descent(dataM, labels, classes, neural, numIter, n0, T, test_images
         plt.show()
     return W
 
-# l-norms helper function
-def lx_gradient(w, batch_size, t):
-    if t == 1:
-        return l1_gradient(w, batch_size)
-    return l2_gradient(w, batch_size)
-
-# Calculate the l2 gradient vector
-def l1_gradient(w, batch_size):
-    res = np.zeros(w.shape)
-    normalized = ut.vect_d_abs(w)
-    for i in range(0, batch_size):
-        np.add(normalized, res, res)
-    
-    return res
-
-
-# Calculate the l1 gradient vector.
-def l2_gradient(w, batch_size):
-    res = np.zeros(w.shape)
-    # Compound out weights for the number of iterations required.
-    for i in range(0, batch_size):
-        np.add(2 * w, res, res)
-    
-    return res
-
-
-# Calculate gradient vector
-def gradient(Y, X, T, c):
-    rowNum = X.shape[0]
-    colNum = X.shape[1]
-
-    diff = np.subtract(Y, T[:, c])
-    res = np.zeros(shape=(colNum, ))
-    for i in range(0, rowNum):
-        # Clip the results lest we overflow
-        np.add(np.multiply(X[i, :], diff[i]), res, res)
-    
-    return res
-
-def gradient2(Y,T,X):
+def gradient(Y,T,X):
     res = np.matmul(np.transpose(X),np.subtract(T,Y))
     return res
-
-#def updateStep(self, t, T):
-#    self.n = self.n / (1 + t/T)
