@@ -12,11 +12,10 @@ class TwoLayerNN:
 
     # Constructor
     def __init__(self, n1, n2, n3):
-        self.DIM = dim
         # TODO: Randomize the starting weights
         # data is of size N*n1
-        self.W1 = np.zeros(shape = (n1,n2))
-        self.W2 = np.zeros(shape = (n2,n3))
+        self.W1 = np.zeros(shape = (n1 + 1, n2 + 1))
+        self.W2 = np.zeros(shape = (n2 + 1, n2))
 
     def run(self, data):
         # Hidden Layer Input
@@ -32,14 +31,21 @@ class TwoLayerNN:
         return res
 
     # Backpropagation step for given images, labels, and learning rate n
+    # We can normalize our batch
     def backprop(self, batch_images, batch_labels, n, reg, regNorm):
-        # Output Layer
-        delta2 = np.subtract(self.run(batch_images), batch_labels)
+        #TODO add reg, regNorm
+        # Hidden to Output
+        delta2 = np.sum(np.subtract(self.run(batch_images), batch_labels))
 
-        # Hidden Layer
+        # Input to Hidden
+        # Since this is only one layer, we can simply, matmul batch_images and W1
+        # to get a1.
+        sig1 = ut.logistic(np.matmul(batch_images, self.W1))
+        delta1 = sig1* (1-sig1) * delta2 * self.W1.shape[1] * np.sum(self.W1)
 
         # Update weights
-        self.W2 = np.add(self.W2, n  * )
+        self.W2 = np.add(self.W2, np.sum(n  * delta2 * batch_images, axis=0))
+        self.W1 = np.add(self.W1, np.sum(n * delta1 * batch_images, axis = 0))
 
     def train(self, train_images, train_labels, iter=100, n0=0.001, T=100, minibatch=128, earlyStop=3, minIter=10, reg=0.0001, regNorm = 2, isPlot = False):
         #TODO: Plot the outputs for isPlot
@@ -47,7 +53,7 @@ class TwoLayerNN:
         minError = 1
         minW1 = self.W1
         minW2 = self.W2
-        train_images, train_labels, holdout_images, holdout_labels = ut.getHoldout(dataM, labels, 0.1)
+        train_images, train_labels, holdout_images, holdout_labels = ut.get_holdout(train_images, train_labels, 0.1)
 
         train_images = ut.zscore(train_images)
         train_images = ut.pad_ones(train_images)
@@ -58,7 +64,7 @@ class TwoLayerNN:
             n = n0/(1+t/T)
 
             errorOld = self.test(holdout_images,holdout_labels)
-            for m in range(0,np.ceil(train_images.shape[0]/minibatch)):
+            for m in range(0, int(np.ceil(train_images.shape[0]/minibatch))):
                 batch_images,batch_labels = ut.batch(train_images,train_labels, m, minibatch)
                 self.backprop(batch_images, batch_labels, n, reg, regNorm)
             errorNew = self.test(holdout_images,holdout_labels)
