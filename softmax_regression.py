@@ -28,55 +28,6 @@ class SoftMax:
             res = res / res_sum[:, np.newaxis]
             return res
 
-        # Get the probability of the largest
-        def run2(self, dataM):
-            A = []
-            res = []
-            # calculate each ak
-            for c in range(0, len(self.classes)):
-                A.append(np.dot(dataM, self.W[c]))
-            
-
-            # Calculate the exps
-            for dRowCnt in range(0, dataM.shape[0]):
-                # Bottom total
-                denom = 0.0
-                for c in range(0, len(self.classes)):
-                    denom += math.exp(np.clip(A[c][dRowCnt], -500, 500))
-                
-                m = []
-                for c in range(0, len(self.classes)):
-                    r = math.exp(np.clip(A[c][dRowCnt], -500, 500)) / denom
-                    m.append(r)
-                
-                res.append(self.classes[np.argmax(m)])
-
-            return np.array(res)
         
-        # Runs the softmax node and output results
-        # Returns a vector of probability of each class.
-        def run_all(self, dataM):
-            A = []
-            
-            self.output = []
-            for c in self.classes:
-                self.output.append([])
 
-            # calculate each ak
-            for c in range(0, len(self.classes)):
-                A.append(np.dot(dataM, self.W[c]))
-
-            # Calculate the exps
-            for dRowCnt in range(0, dataM.shape[0]):
-                # Bottom total
-                denom = 0.0
-                for c in range(0, len(self.classes)):
-                    denom += math.exp(np.clip(A[c][dRowCnt], -500, 500))
-
-                for c in range(0, len(self.classes)):
-                    r = math.exp(np.clip(A[c][dRowCnt], -500, 500)) / denom
-                    self.output[c].append(r)
-
-            return np.array(self.output)
-            
         

@@ -6,23 +6,6 @@ import math
 
 # Calulate regularization const for L1
 
-# Create one hot
-def toOneHot(cat, size):
-    res = []
-    for c in range(0, size):
-        if c == cat:
-           res.append(1)
-        else:
-           res.append(0)
-    
-    return np.array(res)
-
-# Convert a function from onehot to category.
-def toCat(oneHot):
-    for c in range(0, oneHot.size):
-        if oneHot[c] == 1:
-            return c
-    return -1
 
 # Get numbers in list
 # labelAs given corrspond to what labels should be assigned
@@ -119,23 +102,15 @@ def avg_cross_entropy(T, Y):
 def sig(x):
     return 1 / (1 + math.exp(-np.clip(x, -500, 30)))
 
-# gets error rate of result
+# Return error rate of softmax result.
 def error_rate(res, givenLabel):
-    err = 0
-    for x in range(0, len(res)):
-        if res[x] != givenLabel[x]:
-            err += 1
-    
-    return ((float)(err)) / givenLabel.size
-
-# error rate for non-rounded data
-def error_rate2(res, givenLabel):
     err = 0
     res = round(res)
     for x in range(0, len(res)):
         if res[x] != givenLabel[x]:
             err += 1
     return ((float)(err)) / givenLabel.size
+
 
 def error_rate3(res, givenLabel):
     err = 0
