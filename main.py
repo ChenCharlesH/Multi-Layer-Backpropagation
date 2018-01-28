@@ -10,19 +10,19 @@ def main():
 
     # Load the training img and labels
     train_images, train_labels = dat.getTrainingData(classes, classes, 0, None)
-    #train_images = train_images[0:100,:]
+    # train_images = train_images[0:100,:]
     #train_labels = train_labels[0:100]
 
     # Load the testing img and labels
     test_images, test_labels = dat.getTestingData(classes, classes, 0, None)
-    # test_images = test_images[0:100,:]
-    # test_labels = test_labels[0:100]
+    #test_images = test_images[0:100,:]
+    #test_labels = test_labels[0:100]
 
     # initiate 2 layer Neural Network with Softmax outputs and Logistic hidden layer
     nn = sr.TwoLayerNN(train_images.shape[1], 64, 10)
 
     # Train the Neural Network
-    nn.train(train_images, train_labels, iter=100, n0=0.001,T=100, minibatch=128,
+    nn.train(train_images, train_labels, iter=100, n0=150,T=100, minibatch=128,
     earlyStop=3, reg=0.0001, regNorm = 2, isPlot = False)
 
     # Test the Neural Network

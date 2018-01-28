@@ -9,22 +9,31 @@ class TwoLayerNN:
     # Weights should be column vectors
     W2 = np.array([])
 
+    X1 = np.array([])
+    X2 = np.array([])
+
 
     # Constructor
     def __init__(self, n1, n2, n3):
         # TODO: Randomize the starting weights
         # data is of size N*n1
-        self.W1 = np.zeros(shape = (n1 + 1, n2 + 1))
-        self.W2 = np.zeros(shape = (n2 + 1, n2))
+        self.W1 = np.zeros(shape = (n1 + 1, n2))
+        self.W2 = np.zeros(shape = (n2 + 1, n3))
 
     def run(self, data):
         # Hidden Layer Input
+        self.X1 = np.copy(data)
         res = np.matmul(data, self.W1)
+
         # Hidden Layer Output
         res = ut.logistic(res)
 
+
         # Output Layer Input
+        res = ut.pad_ones(res)
+        self.X2 = np.copy(res)
         res = np.matmul(res, self.W2)
+
         # Output Layer Output
         res = ut.softmax(res)
 
@@ -34,18 +43,29 @@ class TwoLayerNN:
     # We can normalize our batch
     def backprop(self, batch_images, batch_labels, n, reg, regNorm):
         #TODO add reg, regNorm
+        #TODO maybe add normalization of gradient w.r.t. size of batch
         # Hidden to Output
-        delta2 = np.sum(np.subtract(self.run(batch_images), batch_labels))
+        # n x 10
+        delta2 = np.subtract(batch_labels, self.run(batch_images))
+        # n x 65
+        z2 = self.X2
 
         # Input to Hidden
         # Since this is only one layer, we can simply, matmul batch_images and W1
         # to get a1.
-        sig1 = ut.logistic(np.matmul(batch_images, self.W1))
-        delta1 = sig1* (1-sig1) * delta2 * self.W1.shape[1] * np.sum(self.W1)
+        # n x 785
+        z1 = self.X1
+        # n x 65
+        sum_term = np.matmul(delta2, self.W2.T[:, :-1])
+        # Note the + -1 is necessary
+
+        # n x 65
+        delta1 = np.multiply(np.multiply(z2[:, 1:], (z2[:, 1:] - 1)), sum_term)
+
 
         # Update weights
-        self.W2 = np.add(self.W2, np.sum(n  * delta2 * batch_images, axis=0))
-        self.W1 = np.add(self.W1, np.sum(n * delta1 * batch_images, axis = 0))
+        self.W2 = np.add(self.W2, (n * np.matmul(z2.T, delta2)) / batch_labels.shape[0])
+        self.W1 = np.add(self.W1, (n * np.matmul(z1.T, delta1)) / batch_labels.shape[0])
 
     def train(self, train_images, train_labels, iter=100, n0=0.001, T=100, minibatch=128, earlyStop=3, minIter=10, reg=0.0001, regNorm = 2, isPlot = False):
         #TODO: Plot the outputs for isPlot
@@ -68,6 +88,7 @@ class TwoLayerNN:
                 batch_images,batch_labels = ut.batch(train_images,train_labels, m, minibatch)
                 self.backprop(batch_images, batch_labels, n, reg, regNorm)
             errorNew = self.test(holdout_images,holdout_labels)
+            print errorNew
 
             # Keep track of Best performance
             if errorNew < minError:
