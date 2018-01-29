@@ -46,7 +46,7 @@ class TwoLayerNN:
         #TODO maybe add normalization of gradient w.r.t. size of batch
         # Hidden to Output
         # n x 10
-        delta2 = np.subtract(batch_labels, self.run(batch_images))
+        delta2 = np.subtract(self.run(batch_images), batch_labels)
         # n x 65
         z2 = self.X2
 
@@ -61,6 +61,7 @@ class TwoLayerNN:
 
         # n x 65
         delta1 = np.multiply(np.multiply(z2[:, 1:], (z2[:, 1:] - 1)), sum_term)
+
 
 
         # Update weights

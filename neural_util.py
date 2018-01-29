@@ -133,7 +133,7 @@ def softmax(x):
 
 def batch(train_images, train_labels, b, minibatch):
     rows = train_images.shape[0]
-    start = b*minibatch;
+    start = b*minibatch
     end = (b+1)*minibatch if ((b+1) * minibatch<rows) else rows
     batch_images = train_images[start:end]
     batch_labels = train_labels[start:end]

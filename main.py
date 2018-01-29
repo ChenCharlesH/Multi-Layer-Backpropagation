@@ -22,7 +22,7 @@ def main():
     nn = sr.TwoLayerNN(train_images.shape[1], 64, 10)
 
     # Train the Neural Network
-    nn.train(train_images, train_labels, iter=100, n0=150,T=100, minibatch=128,
+    nn.train(train_images, train_labels, iter=100, n0=0.01,T=100, minibatch=128,
     earlyStop=3, reg=0.0001, regNorm = 2, isPlot = False)
 
     # Test the Neural Network
