@@ -41,6 +41,7 @@ class TwoLayerNN:
 
     # Backpropagation step for given images, labels, and learning rate n
     # We can normalize our batch
+    # Returns the two weights.
     def backprop(self, batch_images, batch_labels, n, reg, regNorm):
         #TODO add reg, regNorm
         #TODO maybe add normalization of gradient w.r.t. size of batch
@@ -62,15 +63,45 @@ class TwoLayerNN:
         # n x 65
         delta1 = np.multiply(np.multiply(z2[:, 1:], (z2[:, 1:] - 1)), sum_term)
 
-
-
         # Update weights
-        self.W2 = np.add(self.W2, (n * np.matmul(z2.T, delta2)) / batch_labels.shape[0])
-        self.W1 = np.add(self.W1, (n * np.matmul(z1.T, delta1)) / batch_labels.shape[0])
+        dir_res2 = (n * np.matmul(z2.T, delta2)) / batch_labels.shape[0]
+        dir_res1 = (n * np.matmul(z1.T, delta1)) / batch_labels.shape[0]
+
+        res2 = np.add(self.W2, dir_res2)
+        res1 = np.add(self.W1, dir_res1)
+
+        return res1, res2, dir_res1, dir_res2
+
+    # Helper for numApprox
+    def assigner(self, x, W):
+        if x == 0:
+            self.W1 = W
+        else:
+            self.W2 = W
+
+    # Function to find numerical approximation.
+    def numApprox(self, images, labels, epsilon):
+        values = [self.W1, self.W2]
+        for i in range(0, len(values)):
+            W = values[i]
+
+            prev = np.copy(W)
+            eGrid = np.zeros(shape=W.shape)
+            eGrid.fill(epsilon)
+            aW1 = np.add(W, eGrid)
+
+            self.assigner(i, W)
+            ares = self.run(images)
+        
+            sW1 = np.subtract(W, eGrid)
+            W = sW1
+            sres = self.run(images)
+
+        
 
     def train(self, train_images, train_labels, iter=100, n0=0.001, T=100, minibatch=128, earlyStop=3, minIter=10, reg=0.0001, regNorm = 2, isPlot = False):
         #TODO: Plot the outputs for isPlot
-        stopCount = 0;
+        stopCount = 0
         minError = 1
         minW1 = self.W1
         minW2 = self.W2
@@ -87,8 +118,16 @@ class TwoLayerNN:
             errorOld = self.test(holdout_images,holdout_labels)
             for m in range(0, int(np.ceil(train_images.shape[0]/minibatch))):
                 batch_images,batch_labels = ut.batch(train_images,train_labels, m, minibatch)
-                self.backprop(batch_images, batch_labels, n, reg, regNorm)
+
+                # Returns weights and also the derivatives
+                bw1, bw2, dir1, dir2 = self.backprop(batch_images, batch_labels, n, reg, regNorm)
+                self.numApprox(batch_images, batch_labels, 0.01)
+
+                self.W1 = bw1
+                self.W2 = bw2
+
             errorNew = self.test(holdout_images,holdout_labels)
+
             print errorNew
 
             # Keep track of Best performance
@@ -96,11 +135,6 @@ class TwoLayerNN:
                 minError = errorNew
                 minW1 = self.W1
                 minW2 = self.W2
-
-            # Early Stop Condition
-            if errorNew < minError:
-                minError = errorNew
-                minErrorWeight = W
 
             if errorNew > errorOld:
                 stopCount = stopCount + 1

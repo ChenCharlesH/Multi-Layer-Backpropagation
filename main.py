@@ -1,7 +1,6 @@
 import neural_util as ut
 import numpy as np
-import soft_gradient_descent as sd
-import softmax_regression as sr
+import two_layer_nn as sr
 import data as dat
 
 

@@ -118,7 +118,7 @@ def l1_grad(x):
 
 # Returns the gradient for L2 normalization
 def l2_grad(x):
-    return 2*x;
+    return 2*x
 
 # Logistic activation function
 def logistic(x):
