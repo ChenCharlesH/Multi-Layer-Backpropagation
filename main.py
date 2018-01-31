@@ -1,6 +1,6 @@
 import neural_util as ut
 import numpy as np
-import two_layer_nn as sr
+import two_layer_nn as tl
 import data as dat
 
 
@@ -9,16 +9,12 @@ def main():
 
     # Load the training img and labels
     train_images, train_labels = dat.getTrainingData(classes, classes, 0, None)
-    # train_images = train_images[0:100,:]
-    #train_labels = train_labels[0:100]
 
     # Load the testing img and labels
     test_images, test_labels = dat.getTestingData(classes, classes, 0, None)
-    #test_images = test_images[0:100,:]
-    #test_labels = test_labels[0:100]
 
     # initiate 2 layer Neural Network with Softmax outputs and Logistic hidden layer
-    nn = sr.TwoLayerNN(train_images.shape[1], 64, 10)
+    nn = tl.TwoLayerNN(train_images.shape[1], 64, 10)
 
     # Train the Neural Network
     nn.train(train_images, train_labels, iter=100, n0=0.01,T=100, minibatch=128,

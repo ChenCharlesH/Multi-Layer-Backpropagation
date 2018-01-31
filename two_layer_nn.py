@@ -3,73 +3,49 @@ import neural_util as ut
 
 # Class to house logistical regression.
 class TwoLayerNN:
-    output = []
-    # Weights should be column vectors.
-    W1 = np.array([])
+
     # Weights should be column vectors
+    W1 = np.array([])
     W2 = np.array([])
 
-    X1 = np.array([])
-    X2 = np.array([])
-
+    X = np.array([])
+    Z = np.array([])
+    Y = np.array([])
 
     # Constructor
     def __init__(self, n1, n2, n3):
-        # TODO: Randomize the starting weights
-        # data is of size N*n1
-        self.W1 = np.zeros(shape = (n1 + 1, n2))
-        self.W2 = np.zeros(shape = (n2 + 1, n3))
+        # TODO: Randomize the starting weights with N(0,sigma^2)
+        self.W1 = np.random.normal(0,1/(n1+1),size = (n1 + 1, n2))
+        self.W2 = np.random.normal(0,1/(n2+1),size = (n2 + 1, n3))
 
     def run(self, data):
         # Hidden Layer Input
-        self.X1 = np.copy(data)
-        res = np.matmul(data, self.W1)
+        self.X = np.copy(data)
+        Aj = np.matmul(self.X, self.W1)
 
         # Hidden Layer Output
-        res = ut.logistic(res)
-
+        self.Z = ut.logistic(Aj)
+        self.Z = ut.pad_ones(self.Z)
 
         # Output Layer Input
-        res = ut.pad_ones(res)
-        self.X2 = np.copy(res)
-        res = np.matmul(res, self.W2)
+        Ak = np.matmul(self.Z, self.W2)
 
         # Output Layer Output
-        res = ut.softmax(res)
+        self.Y = ut.softmax(Ak)
 
-        return res
+        return self.Y
 
     # Backpropagation step for given images, labels, and learning rate n
     # We can normalize our batch
     # Returns the two weights.
     def backprop(self, batch_images, batch_labels, n, reg, regNorm):
         #TODO add reg, regNorm
-        #TODO maybe add normalization of gradient w.r.t. size of batch
-        # Hidden to Output
-        # n x 10
         delta2 = np.subtract(self.run(batch_images), batch_labels)
-        # n x 65
-        z2 = self.X2
-
-        # Input to Hidden
-        # Since this is only one layer, we can simply, matmul batch_images and W1
-        # to get a1.
-        # n x 785
-        z1 = self.X1
-        # n x 65
-        sum_term = np.matmul(delta2, self.W2.T[:, :-1])
-        # Note the + -1 is necessary
-
-        # n x 65
-        delta1 = np.multiply(np.multiply(z2[:, 1:], (z2[:, 1:] - 1)), sum_term)
-
-        # Update weights
-        dir_res2 = (n * np.matmul(z2.T, delta2)) / batch_labels.shape[0]
-        dir_res1 = (n * np.matmul(z1.T, delta1)) / batch_labels.shape[0]
-
-        res2 = np.add(self.W2, dir_res2)
-        res1 = np.add(self.W1, dir_res1)
-
+        delta1 = np.multiply(np.multiply(self.Z[:, 1:], (self.Z[:, 1:] - 1)),np.matmul(delta2, self.W2.T[:, :-1]))
+        dir_res2 = n*np.matmul(np.transpose(self.Z),delta2)/batch_labels.shape[0]
+        dir_res1 = n*np.matmul(np.transpose(self.X),delta1)/batch_labels.shape[0]
+        res2 = self.W2 + dir_res2
+        res1 = self.W1 + dir_res1
         return res1, res2, dir_res1, dir_res2
 
     # Helper for numApprox
@@ -118,7 +94,7 @@ class TwoLayerNN:
             res.append(r)
             print str(t) + " DONE"
         return res
-                    
+
 
 
     def train(self, train_images, train_labels, iter=100, n0=0.001, T=100, minibatch=128, earlyStop=3, minIter=10, reg=0.0001, regNorm = 2, isPlot = False):

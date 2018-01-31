@@ -4,7 +4,6 @@ import math
 
 EXP_CLIP = 100
 
-
 # Get numbers in list
 # labelAs given corrspond to what labels should be assigned
 def getTT(images, labels, numbers = [2, 3], labelAs=[1, 0]):
@@ -18,16 +17,7 @@ def getTT(images, labels, numbers = [2, 3], labelAs=[1, 0]):
                 break
     return np.array(resX), np.array(resY)
 
-# Get subset of images belonging to the array passed
-def get_subset(images, labels, values):
-    resX = []
-    resY = []
-    for i in range(0, len(values)):
-        mask = labels==values[i]
-        resX.append(images[mask])
-        resY.append(values[i])
-    return np.array(resX), np.array(resY)
-
+# Separate images and labels into a training set and a holdout set
 def get_holdout(images, labels, fraction):
     s = images.shape[0]
     randomVal = np.random.rand(s)
@@ -82,15 +72,6 @@ def k_avg_entropy(Y, T):
 def avg_cross_entropy(T, Y):
     return cross_entropy(T, Y) / T.shape[0]
 
-# Return error rate of category results
-def error_rate_label(res, givenLabel):
-    err = 0
-    res = round(res)
-    for x in range(0, len(res)):
-        if res[x] != givenLabel[x]:
-            err += 1
-    return ((float)(err)) / givenLabel.size
-
 # Return error rate of softmax.
 def error_rate(res, givenLabel):
     err = 0
@@ -100,10 +81,6 @@ def error_rate(res, givenLabel):
         if labels1[x] != labels2[x]:
             err += 1
     return ((float)(err)) / len(givenLabel)
-
-# Custum round function to round by clipping.
-def round(res):
-    return np.clip(np.around(res, decimals=0), 0, 1)
 
 # Returns one hot encoding of images.
 def one_hot_encoding(labels):
