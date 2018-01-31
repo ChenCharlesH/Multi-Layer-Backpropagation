@@ -1,5 +1,6 @@
 import numpy as np
 import neural_util as ut
+import matplotlib.pyplot as plt
 
 # Class to house logistical regression.
 class TwoLayerNN:
@@ -97,7 +98,11 @@ class TwoLayerNN:
 
 
 
-    def train(self, train_images, train_labels, iter=100, n0=0.001, T=100, minibatch=128, earlyStop=3, minIter=10, reg=0.0001, regNorm = 2, isPlot = False):
+    def train(
+        self, train_images, train_labels, test_images, test_labels, 
+        iter=100, n0=0.001, T=100, minibatch=128, earlyStop=3, minIter=10, 
+        reg=0.0001, regNorm = 2, isPlot = False, isNumerical = False
+    ):
         #TODO: Plot the outputs for isPlot
         stopCount = 0
         minError = 1
@@ -109,6 +114,11 @@ class TwoLayerNN:
         train_images = ut.pad_ones(train_images)
         train_labels = ut.one_hot_encoding(train_labels)
 
+        # Collection data attributes
+        errorTrain = []
+        errorHoldout = []
+        errorTest = []
+
         for t in range(0,iter):
             #TODO: Randomize the data after every epoch through the data
             n = n0/(1+t/T)
@@ -119,22 +129,26 @@ class TwoLayerNN:
 
                 # Returns weights and also the derivatives
                 bw1, bw2, dir1, dir2 = self.backprop(batch_images, batch_labels, n, reg, regNorm)
-                nA = self.numApprox(batch_images, batch_labels, 0.01)
-                print dir1
-                print nA[0]
-                print "---------------------------"
-                print dir2
-                print nA[1]
-                print "---------------------------"
-                print np.subtract(dir1, nA[0])
-                print np.subtract(dir2, nA[1])
-                print "---------------------------"
+                if isNumerical:
+                    nA = self.numApprox(batch_images, batch_labels, 0.01)
+                    print dir1
+                    print nA[0]
+                    print "---------------------------"
+                    print dir2
+                    print nA[1]
+                    print "---------------------------"
+                    print np.subtract(dir1, nA[0])
+                    print np.subtract(dir2, nA[1])
+                    print "---------------------------"
 
                 self.W1 = bw1
                 self.W2 = bw2
 
             errorNew = self.test(holdout_images,holdout_labels)
-
+            if isPlot:
+                errorTrain.append(self.test(train_images, train_labels, False))
+                errorHoldout.append(self.test(holdout_images, holdout_labels))
+                errorTest.append(self.test(test_images, test_labels))
             print errorNew
 
             # Keep track of Best performance
@@ -152,6 +166,13 @@ class TwoLayerNN:
 
         self.W1 = minW1
         self.W2 = minW2
+
+        if isPlot:
+            plt.plot(errorTrain,label = 'Training',linewidth=0.8)
+            plt.plot(errorHoldout, label = 'Holdout',linewidth=0.8)
+            plt.plot(errorTest, label = 'Test',linewidth=0.8)
+            plt.legend()
+            plt.show()
 
     def test(self, test_images, test_labels, format=True):
         if format:
