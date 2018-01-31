@@ -31,7 +31,7 @@ def main():
 
     # Train the Neural Networ
     nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=0.001,T=100, minibatch=128,
-    earlyStop=3, reg=0.0001, regNorm = 2, isPlot = True, isNumerical = False)
+    earlyStop=3, reg=0.0001, regNorm = 2, isPlot = True, isNumerical = True)
 
     # Test the Neural Network
     print "Error Rate: " + str(100 * nn.test(test_images,test_labels)) + str("%")

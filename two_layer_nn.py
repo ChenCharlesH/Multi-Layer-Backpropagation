@@ -52,6 +52,7 @@ class TwoLayerNN:
         #TODO add reg, regNorm
         delta2 = np.subtract(self.run(batch_images), batch_labels)
         if self.isTanH:
+            #TODO: Fix the gradient for tanh
             delta1 = np.multiply(1.7159 * (2.0/3) *(np.multiply(self.Z[:, 1:], (self.Z[:, 1:])) + -1),np.matmul(delta2, self.W2.T[:, :-1]))
         else:
             delta1 = np.multiply(np.multiply(self.Z[:, 1:], (1 - self.Z[:, 1:])),np.matmul(delta2, self.W2.T[:,1:]))
@@ -59,72 +60,30 @@ class TwoLayerNN:
         grad1 = np.matmul(np.transpose(self.X),delta1)
         if isNumerical:
             agrad1, agrad2 = self.numApprox(batch_images, batch_labels, 0.01)
-            print "Grad1:"
-            print grad1[0:10,0:5]
-            print agrad1[0:10,0:5]
-            print "---------------------------"
-            print "Grad2:"
-            print grad2[0:10,0:5]
-            print agrad2[0:10,0:5]
-            print "---------------------------"
-            print "Difference:"
-            print np.subtract(grad1[0:10,0:5], agrad1[0:10,0:5])
-            print np.subtract(grad2[0:10,0:5], agrad2[0:10,0:5])
+            # print "Grad1:"
+            # print grad1[0:10,0:5]
+            # print agrad1[0:10,0:5]
+            # print "---------------------------"
+            # print "Grad2:"
+            # print grad2[0:10,0:5]
+            # print agrad2[0:10,0:5]
+            # print "---------------------------"
+            print "Max Difference Input Bias:"
+            print np.max(np.absolute(np.subtract(grad1[0,0:5], agrad1[0,0:5])))
+            print "Max Difference Output Bias:"
+            print np.max(np.absolute(np.subtract(grad2[0,0:5], agrad2[0,0:5])))
+            print "Max Difference First Layer Weights:"
+            print np.max(np.absolute(np.subtract(grad1[1:10,0:5], agrad1[1:10,0:5])))
+            print "Max Difference Second Layer Weights:"
+            print np.max(np.absolute(np.subtract(grad2[1:10,0:5], agrad2[1:10,0:5])))
             print "---------------------------"
         self.W2 = self.W2 + n*grad2/batch_labels.shape[0]
         self.W1 = self.W1 + n*grad1/batch_labels.shape[0]
-
-    # Helper for numApprox
-    def assigner(self, x, W):
-        if x == 0:
-            self.W1 = W
-        else:
-            self.W2 = W
-
-    # # Function to find numerical approximation.
-    # def numApprox(self, images, labels, epsilon):
-    #     values = [self.W1, self.W2]
-    #     res = []
-    #     for t in range(0, len(values)):
-    #         W = values[t]
-    #         prev = np.copy(W)
-    #
-    #         # Generate three grids
-    #         eGrid = np.zeros(shape=W.shape)
-    #         aGrid = np.zeros(shape=W.shape)
-    #         sGrid = np.zeros(shape=W.shape)
-    #         eGrid.fill(epsilon)
-    #
-    #         aW = np.add(W, eGrid)
-    #         sW = np.subtract(W, eGrid)
-    #
-    #         # Calculate + and - values
-    #         for i in range(0, W.shape[0]):
-    #             for j in range(0, W.shape[1]):
-    #                 # Set forward
-    #                 W[i, j] = aW[i, j]
-    #                 # Set specific weights
-    #                 self.assigner(t, W)
-    #                 aGrid[i, j] = self.test(images, labels, False)
-    #
-    #                 W[i, j] = sW[i, j]
-    #                 self.assigner(t, W)
-    #                 sGrid[i, j] = self.test(images, labels, False)
-    #
-    #                 # set values back.
-    #                 self.assigner(t, prev)
-    #
-    #         # calculate our gradient values.
-    #         r = np.subtract(aGrid, sGrid) / (2 * epsilon)
-    #         res.append(r)
-    #         print str(t) + " DONE"
-    #     return res
 
     def numApprox(self, images, labels, epsilon):
         grad1 = np.zeros(self.W1.shape)
         for i in range(0,10):
             for j in range(0,5):
-                print i,j
                 self.W1[i,j] = self.W1[i,j] + epsilon;
                 Ypos = self.run(images);
                 self.W1[i,j] = self.W1[i,j] - 2*epsilon;
@@ -135,7 +94,6 @@ class TwoLayerNN:
         grad2 = np.zeros(self.W2.shape)
         for i in range(0,10):
             for j in range(0,5):
-                print i,j
                 self.W2[i,j] = self.W2[i,j] + epsilon;
                 Ypos = self.run(images);
                 self.W2[i,j] = self.W2[i,j] - 2*epsilon;
