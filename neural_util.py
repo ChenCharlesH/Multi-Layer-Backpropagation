@@ -49,8 +49,6 @@ def showImg(image):
 # Value of cross entropy.
 def cross_entropy(Y,T):
     res = 0
-    # math.log(min(Y))
-    # print math.log(Y.min)
     for x in range(0, T.size):
             res += T[x] * math.log(Y[x]) + ((1 - T[x]) * math.log(1-Y[x]))
     return -res
@@ -59,13 +57,13 @@ def cross_entropy(Y,T):
 def k_entropy(Y, T):
     res = 0
     rows = Y.shape[0]
-
-    for r in range(0, rows):
-        for v in range(0, T.shape[0]):
+    columns = Y.shape[1]
+    for i in range(0, rows):
+        for j in range(0, columns):
             # if 0 for some reason, set it really close
-            if Y[r,v] == 0.0:
-                Y[r,v] = 0.00001
-            res += T[v,r] * math.log(Y[r,v])
+            if Y[i,j] == 0.0:
+                Y[i,j] = 0.00001
+            res += T[i,j] * math.log(Y[i,j])
     return res
 
 def k_avg_entropy(Y, T):
@@ -131,14 +129,14 @@ def permute(images, labels):
     times = labels.shape[0]
     for i in range(0, times * 2):
         v_i = randint(0, times - 1)
-        v_j = randint(0, times - 1) 
+        v_j = randint(0, times - 1)
 
         images[[v_i, v_j]] = images[[v_j, v_i]]
         labels[[v_i, v_j]] = labels[[v_j, v_i]]
 
 # Get mean of each pixel
 def mean_center_pixel(images):
-    m = images.mean(axis=0,keepdims=True, dtype=np.float64) 
+    m = images.mean(axis=0,keepdims=True, dtype=np.float64)
     return images - m
 
 # Do expansion
