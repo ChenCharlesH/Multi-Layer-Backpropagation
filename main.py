@@ -13,6 +13,10 @@ def main():
     # Load the testing img and labels
     test_images, test_labels = dat.getTestingData(classes, classes, 0, None)
 
+    # Every-day I'm Shuffling
+    ut.permute(train_images, train_labels)
+    ut.permute(test_images, test_labels)
+
     # initiate 2 layer Neural Network with Softmax outputs and Logistic hidden layer
     nn = tl.TwoLayerNN(train_images.shape[1], 64, 10)
 

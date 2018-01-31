@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+from random import randint
+
 EXP_CLIP = 100
 
 # Get numbers in list
@@ -119,3 +121,13 @@ def batch(train_images, train_labels, b, minibatch):
 # Government z-score
 def zscore(images):
     return (images/127.5)-1
+
+# Shuffle the labels and images
+def permute(images, labels):
+    times = labels.shape[0]
+    for i in range(0, times * 2):
+        v_i = randint(0, times - 1)
+        v_j = randint(0, times - 1) 
+
+        images[[v_i, v_j]] = images[[v_j, v_i]]
+        labels[[v_i, v_j]] = labels[[v_j, v_i]]
