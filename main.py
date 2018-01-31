@@ -2,6 +2,7 @@ import neural_util as ut
 import numpy as np
 import two_layer_nn as tl
 import data as dat
+import matplotlib.pyplot as plt
 
 
 def main():
@@ -12,6 +13,12 @@ def main():
 
     # Load the testing img and labels
     test_images, test_labels = dat.getTestingData(classes, classes, 0, None)
+
+    # Perform our input normalization.
+    train_images = ut.mean_center_pixel(train_images)
+    # train_images = ut.kl_expansion_equal_cov(train_images)
+    test_images = ut.mean_center_pixel(test_images)
+    # test_images = ut.kl_expansion_equal_cov(test_images)
 
     # Every-day I'm Shuffling
     ut.permute(train_images, train_labels)

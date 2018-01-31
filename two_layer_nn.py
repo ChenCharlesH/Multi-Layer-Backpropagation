@@ -18,6 +18,8 @@ class TwoLayerNN:
         # TODO: Randomize the starting weights with N(0,sigma^2)
         self.W1 = np.random.normal(0,1/(n1+1),size = (n1 + 1, n2))
         self.W2 = np.random.normal(0,1/(n2+1),size = (n2 + 1, n3))
+        # self.W1 = np.random.randn(n1 + 1, n2)
+        # self.W2 = np.random.randn(n2 + 1, n3)
 
     def run(self, data):
         # Hidden Layer Input
@@ -63,7 +65,6 @@ class TwoLayerNN:
         for t in range(0, len(values)):
             W = values[t]
             prev = np.copy(W)
-
 
             # Generate three grids
             eGrid = np.zeros(shape=W.shape)
@@ -143,7 +144,7 @@ class TwoLayerNN:
 
                 self.W1 = bw1
                 self.W2 = bw2
-
+                
             errorNew = self.test(holdout_images,holdout_labels)
             if isPlot:
                 errorTrain.append(self.test(train_images, train_labels, False))

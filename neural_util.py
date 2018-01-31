@@ -131,3 +131,18 @@ def permute(images, labels):
 
         images[[v_i, v_j]] = images[[v_j, v_i]]
         labels[[v_i, v_j]] = labels[[v_j, v_i]]
+
+# Get mean of each pixel
+def mean_center_pixel(images):
+    m = images.mean(axis=0,keepdims=True, dtype=np.float64) 
+    return images - m
+
+# Do expansion
+def kl_expansion_equal_cov(images):
+    covm = np.cov(images, rowvar = False)
+    val, vec = np.linalg.eig(covm)
+    val = np.sqrt(np.absolute(np.real(val))).reshape(1, images.shape[1])
+    val[val == 0] = 1
+    vec = np.real(vec)
+    klt = np.dot(images, vec)
+    return klt
