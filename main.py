@@ -16,7 +16,7 @@ def main():
 
     # Perform our input normalization.
     train_images = ut.mean_center_pixel(train_images)
-    train_images, vec, val = ut.kl_expansion_equal_cov(train_images)
+    train_images, vec = ut.kl_expansion_equal_cov(train_images)
     train_images = train_images
     test_images = ut.mean_center_pixel(test_images)
     test_images = np.dot(vec.T, test_images.T).T
@@ -30,7 +30,7 @@ def main():
     nn = tl.TwoLayerNN(train_images.shape[1], 64, 10)
 
     # Train the Neural Network
-    nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=0.01,T=100, minibatch=128,
+    nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=0.001,T=100, minibatch=128,
     earlyStop=3, reg=0.0001, regNorm = 2, isPlot = True, isNumerical = False)
 
     # Test the Neural Network

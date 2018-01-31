@@ -142,7 +142,6 @@ def kl_expansion_equal_cov(images):
     covm = np.cov(images, rowvar=False)
     val, vec = np.linalg.eig(covm)
     val = np.sqrt(np.absolute(np.real(val))).reshape(1, images.shape[1])
-    val[val == 0] = 1
-    vec = np.real(vec)
+    vec = np.real(vec * val)
     klt = np.dot(vec.T, images.T).T
-    return klt, vec, val
+    return klt, vec
