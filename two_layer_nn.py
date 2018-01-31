@@ -53,7 +53,6 @@ class TwoLayerNN:
             delta1 = np.multiply(1.7159 * (2.0/3) *(np.multiply(self.Z[:, 1:], (self.Z[:, 1:])) + -1),np.matmul(delta2, self.W2.T[:, :-1]))
         else:
             delta1 = np.multiply(np.multiply(self.Z[:, 1:], (self.Z[:, 1:] + -1)),np.matmul(delta2, self.W2.T[:, :-1]))
-    
         dir_res2 = n*np.matmul(np.transpose(self.Z),delta2)/batch_labels.shape[0]
         dir_res1 = n*np.matmul(np.transpose(self.X),delta1)/batch_labels.shape[0]
         res2 = self.W2 + dir_res2
@@ -109,8 +108,8 @@ class TwoLayerNN:
 
 
     def train(
-        self, train_images, train_labels, test_images, test_labels, 
-        iter=100, n0=0.001, T=100, minibatch=128, earlyStop=3, minIter=10, 
+        self, train_images, train_labels, test_images, test_labels,
+        iter=100, n0=0.001, T=100, minibatch=128, earlyStop=3, minIter=10,
         reg=0.0001, regNorm = 2, isPlot = False, isNumerical = False
     ):
         #TODO: Plot the outputs for isPlot
@@ -134,7 +133,7 @@ class TwoLayerNN:
             n = n0/(1+t/T)
 
             errorOld = self.test(holdout_images,holdout_labels)
-            for m in range(0, int(np.ceil(train_images.shape[0]/minibatch))):
+            for m in range(0, int(np.ceil(float(train_images.shape[0])/minibatch))):
                 batch_images,batch_labels = ut.batch(train_images,train_labels, m, minibatch)
 
                 # Returns weights and also the derivatives
@@ -153,7 +152,7 @@ class TwoLayerNN:
 
                 self.W1 = bw1
                 self.W2 = bw2
-                
+
             errorNew = self.test(holdout_images,holdout_labels)
             if isPlot:
                 errorTrain.append(self.test(train_images, train_labels, False))
