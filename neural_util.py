@@ -139,10 +139,10 @@ def mean_center_pixel(images):
 
 # Do expansion
 def kl_expansion_equal_cov(images):
-    covm = np.cov(images, rowvar = False)
+    covm = np.cov(images, rowvar=False)
     val, vec = np.linalg.eig(covm)
     val = np.sqrt(np.absolute(np.real(val))).reshape(1, images.shape[1])
     val[val == 0] = 1
     vec = np.real(vec)
-    klt = np.dot(images, vec)
-    return klt
+    klt = np.dot(vec.T, images.T).T
+    return klt, vec, val

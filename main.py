@@ -16,9 +16,11 @@ def main():
 
     # Perform our input normalization.
     train_images = ut.mean_center_pixel(train_images)
-    # train_images = ut.kl_expansion_equal_cov(train_images)
+    train_images, vec, val = ut.kl_expansion_equal_cov(train_images)
+    train_images = train_images
     test_images = ut.mean_center_pixel(test_images)
-    # test_images = ut.kl_expansion_equal_cov(test_images)
+    test_images = np.dot(vec.T, test_images.T).T
+    test_images = test_images
 
     # Every-day I'm Shuffling
     ut.permute(train_images, train_labels)
