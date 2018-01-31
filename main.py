@@ -27,9 +27,9 @@ def main():
     ut.permute(test_images, test_labels)
 
     # initiate 2 layer Neural Network with Softmax outputs and Logistic hidden layer
-    nn = tl.TwoLayerNN(train_images.shape[1], 64, 10)
+    nn = tl.TwoLayerNN(train_images.shape[1], 64, 10, isTanH=True)
 
-    # Train the Neural Network
+    # Train the Neural Networ
     nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=0.001,T=100, minibatch=128,
     earlyStop=3, reg=0.0001, regNorm = 2, isPlot = True, isNumerical = False)
 

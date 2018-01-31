@@ -103,6 +103,10 @@ def l2_grad(x):
 def logistic(x):
     return 1 / (1 + np.exp(-np.clip(x, -EXP_CLIP, EXP_CLIP)))
 
+# Special Tanh activation
+def stanh(x):
+    return np.clip(np.tanh((2.0 / 3) * x) * 1.7159, -EXP_CLIP, EXP_CLIP)
+
 # Softmax activation function
 def softmax(x):
     res = np.exp(-np.clip(x, -EXP_CLIP, EXP_CLIP))

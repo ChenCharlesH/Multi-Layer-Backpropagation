@@ -12,12 +12,14 @@ class TwoLayerNN:
     X = np.array([])
     Z = np.array([])
     Y = np.array([])
+    isTanH = False
 
     # Constructor
-    def __init__(self, n1, n2, n3):
+    def __init__(self, n1, n2, n3, isTanH = False):
         # TODO: Randomize the starting weights with N(0,sigma^2)
         self.W1 = np.random.normal(0,1/(n1+1),size = (n1 + 1, n2))
         self.W2 = np.random.normal(0,1/(n2+1),size = (n2 + 1, n3))
+        self.isTanH = isTanH
         # self.W1 = np.random.randn(n1 + 1, n2)
         # self.W2 = np.random.randn(n2 + 1, n3)
 
@@ -27,7 +29,10 @@ class TwoLayerNN:
         Aj = np.matmul(self.X, self.W1)
 
         # Hidden Layer Output
-        self.Z = ut.logistic(Aj)
+        if self.isTanH:
+            self.Z = ut.stanh(Aj)
+        else:
+            self.Z = ut.logistic(Aj)
         self.Z = ut.pad_ones(self.Z)
 
         # Output Layer Input
@@ -44,7 +49,11 @@ class TwoLayerNN:
     def backprop(self, batch_images, batch_labels, n, reg, regNorm):
         #TODO add reg, regNorm
         delta2 = np.subtract(self.run(batch_images), batch_labels)
-        delta1 = np.multiply(np.multiply(self.Z[:, 1:], (self.Z[:, 1:] - 1)),np.matmul(delta2, self.W2.T[:, :-1]))
+        if self.isTanH:
+            delta1 = np.multiply(1.7159 * (2.0/3) *(np.multiply(self.Z[:, 1:], (self.Z[:, 1:])) + -1),np.matmul(delta2, self.W2.T[:, :-1]))
+        else:
+            delta1 = np.multiply(np.multiply(self.Z[:, 1:], (self.Z[:, 1:] + -1)),np.matmul(delta2, self.W2.T[:, :-1]))
+    
         dir_res2 = n*np.matmul(np.transpose(self.Z),delta2)/batch_labels.shape[0]
         dir_res1 = n*np.matmul(np.transpose(self.X),delta1)/batch_labels.shape[0]
         res2 = self.W2 + dir_res2
