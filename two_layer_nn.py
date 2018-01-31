@@ -82,22 +82,44 @@ class TwoLayerNN:
     # Function to find numerical approximation.
     def numApprox(self, images, labels, epsilon):
         values = [self.W1, self.W2]
-        for i in range(0, len(values)):
-            W = values[i]
-
+        res = []
+        for t in range(0, len(values)):
+            W = values[t]
             prev = np.copy(W)
+
+
+            # Generate three grids
             eGrid = np.zeros(shape=W.shape)
+            aGrid = np.zeros(shape=W.shape)
+            sGrid = np.zeros(shape=W.shape)
             eGrid.fill(epsilon)
-            aW1 = np.add(W, eGrid)
 
-            self.assigner(i, W)
-            ares = self.run(images)
-        
-            sW1 = np.subtract(W, eGrid)
-            W = sW1
-            sres = self.run(images)
+            aW = np.add(W, eGrid)
+            sW = np.subtract(W, eGrid)
 
-        
+            # Calculate + and - values
+            for i in range(0, W.shape[0]):
+                for j in range(0, W.shape[1]):
+                    # Set forward
+                    W[i, j] = aW[i, j]
+                    # Set specific weights
+                    self.assigner(t, W)
+                    aGrid[i, j] = self.test(images, labels, False)
+
+                    W[i, j] = sW[i, j]
+                    self.assigner(t, W)
+                    sGrid[i, j] = self.test(images, labels, False)
+
+                    # set values back.
+                    self.assigner(t, prev)
+
+            # calculate our gradient values.
+            r = np.subtract(aGrid, sGrid) / (2 * epsilon)
+            res.append(r)
+            print str(t) + " DONE"
+        return res
+                    
+
 
     def train(self, train_images, train_labels, iter=100, n0=0.001, T=100, minibatch=128, earlyStop=3, minIter=10, reg=0.0001, regNorm = 2, isPlot = False):
         #TODO: Plot the outputs for isPlot
@@ -121,7 +143,16 @@ class TwoLayerNN:
 
                 # Returns weights and also the derivatives
                 bw1, bw2, dir1, dir2 = self.backprop(batch_images, batch_labels, n, reg, regNorm)
-                self.numApprox(batch_images, batch_labels, 0.01)
+                nA = self.numApprox(batch_images, batch_labels, 0.01)
+                print dir1
+                print nA[0]
+                print "---------------------------"
+                print dir2
+                print nA[1]
+                print "---------------------------"
+                print np.subtract(dir1, nA[0])
+                print np.subtract(dir2, nA[1])
+                print "---------------------------"
 
                 self.W1 = bw1
                 self.W2 = bw2
@@ -146,8 +177,9 @@ class TwoLayerNN:
         self.W1 = minW1
         self.W2 = minW2
 
-    def test(self, test_images, test_labels):
-        test_images = ut.zscore(test_images)
-        test_images = ut.pad_ones(test_images)
-        test_labels = ut.one_hot_encoding(test_labels)
+    def test(self, test_images, test_labels, format=True):
+        if format:
+            test_images = ut.zscore(test_images)
+            test_images = ut.pad_ones(test_images)
+            test_labels = ut.one_hot_encoding(test_labels)
         return ut.error_rate(self.run(test_images), test_labels)
