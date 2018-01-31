@@ -21,6 +21,8 @@ def getTT(images, labels, numbers = [2, 3], labelAs=[1, 0]):
 
 # Separate images and labels into a training set and a holdout set
 def get_holdout(images, labels, fraction):
+    if(fraction>1):
+        fraction = float(fraction)/images.shape[0]
     s = images.shape[0]
     randomVal = np.random.rand(s)
     idx = randomVal<=fraction

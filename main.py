@@ -14,13 +14,13 @@ def main():
     # Load the testing img and labels
     test_images, test_labels = dat.getTestingData(classes, classes, 0, None)
 
-    # # Perform our input normalization.
-    # train_images = ut.mean_center_pixel(train_images)
-    # train_images, vec = ut.kl_expansion_equal_cov(train_images)
-    # train_images = train_images
-    # test_images = ut.mean_center_pixel(test_images)
-    # test_images = np.dot(vec.T, test_images.T).T
-    # test_images = test_images
+    # Perform our input normalization.
+    train_images = ut.mean_center_pixel(train_images)
+    train_images, vec = ut.kl_expansion_equal_cov(train_images)
+    train_images = train_images
+    test_images = ut.mean_center_pixel(test_images)
+    test_images = np.dot(vec.T, test_images.T).T
+    test_images = test_images
     #
     # # Every-day I'm Shuffling
     # ut.permute(train_images, train_labels)
@@ -30,8 +30,8 @@ def main():
     nn = tl.TwoLayerNN(train_images.shape[1], 64, 10, isTanH=False)
 
     # Train the Neural Networ
-    nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=0.001,T=100, minibatch=128,
-    earlyStop=3, reg=0.0001, regNorm = 2, isPlot = True, isNumerical = True)
+    nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=0.001, T=100, minibatch=128,
+    earlyStop=3, reg=0.0001, regNorm = 2, isPlot = True, isNumerical = False)
 
     # Test the Neural Network
     print "Error Rate: " + str(100 * nn.test(test_images,test_labels)) + str("%")

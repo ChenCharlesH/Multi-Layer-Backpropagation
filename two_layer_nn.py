@@ -113,8 +113,7 @@ class TwoLayerNN:
         minError = 1
         minW1 = self.W1
         minW2 = self.W2
-        train_images, train_labels, holdout_images, holdout_labels = ut.get_holdout(train_images, train_labels, 0.1)
-
+        train_images, train_labels, holdout_images, holdout_labels = ut.get_holdout(train_images, train_labels, 10000)
         train_images = ut.zscore(train_images)
         train_images = ut.pad_ones(train_images)
         train_labels = ut.one_hot_encoding(train_labels)
@@ -157,9 +156,9 @@ class TwoLayerNN:
         self.W2 = minW2
 
         if isPlot:
-            plt.plot(errorTrain,label = 'Training',linewidth=0.8)
-            plt.plot(errorHoldout, label = 'Holdout',linewidth=0.8)
-            plt.plot(errorTest, label = 'Test',linewidth=0.8)
+            plt.plot(1-errorTrain,label = 'Training',linewidth=0.8)
+            plt.plot(1-errorHoldout, label = 'Holdout',linewidth=0.8)
+            plt.plot(1-errorTest, label = 'Test',linewidth=0.8)
             plt.legend()
             plt.show()
 
