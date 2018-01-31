@@ -48,7 +48,7 @@ class TwoLayerNN:
     # Backpropagation step for given images, labels, and learning rate n
     # We can normalize our batch
     # Returns the two weights.
-    def backprop(self, batch_images, batch_labels, n, reg, regNorm, isNumerical = False):
+    def backprop(self, batch_images, batch_labels, n, alpha, reg, regNorm, isNumerical = False):
         #TODO add reg, regNorm
         delta2 = np.subtract(self.run(batch_images), batch_labels)
         if self.isTanH:
@@ -77,28 +77,28 @@ class TwoLayerNN:
             print "Max Difference Second Layer Weights:"
             print np.max(np.absolute(np.subtract(grad2[1:10,0:5], agrad2[1:10,0:5])))
             print "---------------------------"
-        self.W2 = self.W2 + n*grad2/batch_labels.shape[0]
-        self.W1 = self.W1 + n*grad1/batch_labels.shape[0]
+        self.W2 = float(alpha) * self.W2 + n*grad2/batch_labels.shape[0]
+        self.W1 = float(alpha) * self.W1 + n*grad1/batch_labels.shape[0]
 
     def numApprox(self, images, labels, epsilon):
         grad1 = np.zeros(self.W1.shape)
         for i in range(0,10):
             for j in range(0,5):
-                self.W1[i,j] = self.W1[i,j] + epsilon;
-                Ypos = self.run(images);
-                self.W1[i,j] = self.W1[i,j] - 2*epsilon;
-                Yneg = self.run(images);
-                self.W1[i,j] = self.W1[i,j] + epsilon;
+                self.W1[i,j] = self.W1[i,j] + epsilon
+                Ypos = self.run(images)
+                self.W1[i,j] = self.W1[i,j] - 2*epsilon
+                Yneg = self.run(images)
+                self.W1[i,j] = self.W1[i,j] + epsilon
                 grad1[i,j] = (ut.k_entropy(Ypos,labels)-ut.k_entropy(Yneg,labels))/(2*epsilon)
 
         grad2 = np.zeros(self.W2.shape)
         for i in range(0,10):
             for j in range(0,5):
-                self.W2[i,j] = self.W2[i,j] + epsilon;
-                Ypos = self.run(images);
-                self.W2[i,j] = self.W2[i,j] - 2*epsilon;
-                Yneg = self.run(images);
-                self.W2[i,j] = self.W2[i,j] + epsilon;
+                self.W2[i,j] = self.W2[i,j] + epsilon
+                Ypos = self.run(images)
+                self.W2[i,j] = self.W2[i,j] - 2*epsilon
+                Yneg = self.run(images)
+                self.W2[i,j] = self.W2[i,j] + epsilon
                 grad2[i,j] = (ut.k_entropy(Ypos,labels)-ut.k_entropy(Yneg,labels))/(2*epsilon)
 
         return grad1,grad2
@@ -106,7 +106,7 @@ class TwoLayerNN:
     def train(
         self, train_images, train_labels, test_images, test_labels,
         iter=100, n0=0.001, T=100, minibatch=128, earlyStop=3, minIter=10,
-        reg=0.0001, regNorm = 2, isPlot = False, isNumerical = False
+        reg=0.0001, regNorm = 2, alpha = 0.9, isPlot = False, isNumerical = False
     ):
         #TODO: Plot the outputs for isPlot
         stopCount = 0
@@ -130,7 +130,7 @@ class TwoLayerNN:
             errorOld = self.test(holdout_images,holdout_labels)
             for m in range(0, int(np.ceil(float(train_images.shape[0])/minibatch))):
                 batch_images,batch_labels = ut.batch(train_images,train_labels, m, minibatch)
-                self.backprop(batch_images, batch_labels, n, reg, regNorm, isNumerical)
+                self.backprop(batch_images, batch_labels, n, alpha, reg, regNorm, isNumerical)
 
             errorNew = self.test(holdout_images,holdout_labels)
             if isPlot:
@@ -156,9 +156,9 @@ class TwoLayerNN:
         self.W2 = minW2
 
         if isPlot:
-            plt.plot(1-errorTrain,label = 'Training',linewidth=0.8)
-            plt.plot(1-errorHoldout, label = 'Holdout',linewidth=0.8)
-            plt.plot(1-errorTest, label = 'Test',linewidth=0.8)
+            plt.plot(errorTrain,label = 'Training',linewidth=0.8)
+            plt.plot(errorHoldout, label = 'Holdout',linewidth=0.8)
+            plt.plot(errorTest, label = 'Test',linewidth=0.8)
             plt.legend()
             plt.show()
 
