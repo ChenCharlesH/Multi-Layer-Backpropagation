@@ -51,11 +51,9 @@ class TwoLayerNN:
     # Backpropagation step for given images, labels, and learning rate n
     # We can normalize our batch
     # Returns the two weights.
-    def backprop(self, batch_images, batch_labels, n, alpha, reg, regNorm, isNumerical = False):
-        #TODO add reg, regNorm
+    def backprop(self, batch_images, batch_labels, n, alpha, reg, regNorm, isNumerical = False, isNesterov=True):
         delta2 = np.subtract(self.run(batch_images), batch_labels)
         if self.isTanH:
-            #TODO: Fix the gradient for tanh
             delta1 = np.multiply( (2.0/3.0)/1.7159 * np.multiply(1.7159 - self.Z[:, 1:],1.7159 + self.Z[:, 1:]) ,np.matmul(delta2, self.W2.T[:, 1:]))
         else:
             delta1 = np.multiply(np.multiply(self.Z[:, 1:],(1 - self.Z[:, 1:])),np.matmul(delta2, self.W2.T[:,1:]))
@@ -84,6 +82,8 @@ class TwoLayerNN:
         self.grad1 = alpha*self.grad1 + n*grad1/batch_labels.shape[0]
         self.W2 = self.W2 + self.grad2
         self.W1 = self.W1 + self.grad1
+        self.W2 = self.W2 - reg*ut.l_grad(self.W2, regNorm)
+        self.W1 = self.W1 - reg*ut.l_grad(self.W1, regNorm)
 
     def numApprox(self, images, labels, epsilon):
         grad1 = np.zeros(self.W1.shape)
@@ -111,7 +111,7 @@ class TwoLayerNN:
     def train(
         self, train_images, train_labels, test_images, test_labels,
         iter=100, n0=0.001, T=100, minibatch=128, earlyStop=3, minIter=10,
-        reg=0.0001, regNorm = 2, alpha = 0.9, isPlot = False, isNumerical = False, isShuffle = True
+        reg=0.0001, regNorm = 2, alpha = 0.9, isPlot = False, isNumerical = False, isShuffle = True, isNesterov = True
     ):
         #TODO: Plot the outputs for isPlot
         stopCount = 0
@@ -139,7 +139,7 @@ class TwoLayerNN:
             errorOld = self.test(holdout_images,holdout_labels)
             for m in range(0, int(np.ceil(float(train_images.shape[0])/minibatch))):
                 batch_images,batch_labels = ut.batch(train_images,train_labels, m, minibatch)
-                self.backprop(batch_images, batch_labels, n, alpha, reg, regNorm, isNumerical)
+                self.backprop(batch_images, batch_labels, n, alpha, reg, regNorm, isNumerical, isNesterov)
 
             errorNew = self.test(holdout_images,holdout_labels)
             if isPlot:

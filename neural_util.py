@@ -92,12 +92,11 @@ def one_hot_encoding(labels):
     return res
 
 # Returns the gradient for L1 normalization
-def l1_grad(x):
-    return np.sign(x)
-
-# Returns the gradient for L2 normalization
-def l2_grad(x):
-    return 2*x
+def l_grad(x,regNorm):
+    if regNorm == 1:
+        return np.sign(x)
+    else:
+        return 2*x
 
 # Logistic activation function
 def logistic(x):
@@ -105,7 +104,7 @@ def logistic(x):
 
 # Special Tanh activation
 def stanh(x):
-    return 1.7159 * np.tanh((2.0 / 3.0) * x) 
+    return 1.7159 * np.tanh((2.0 / 3.0) * x)
 
 # Softmax activation function
 def softmax(x):
