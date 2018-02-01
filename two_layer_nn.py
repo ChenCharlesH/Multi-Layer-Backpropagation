@@ -21,11 +21,11 @@ class TwoLayerNN:
     def __init__(self, n1, n2, n3, isTanH = False, normWeights = False):
         # TODO: Randomize the starting weights with N(0,sigma^2)
         if normWeights:
+            self.W1 = np.random.normal(0,1.0/(n1+1),size = (n1 + 1, n2))
+            self.W2 = np.random.normal(0,1.0/(n2+1),size = (n2 + 1, n3))
+        else:
             self.W1 = np.random.normal(0,0.1,size = (n1 + 1, n2))
             self.W2 = np.random.normal(0,0.1,size = (n2 + 1, n3))
-        else:
-            self.W1 = np.random.normal(0,1/(n1+1),size = (n1 + 1, n2))
-            self.W2 = np.random.normal(0,1/(n2+1),size = (n2 + 1, n3))
         self.grad1 = np.zeros(self.W1.shape)
         self.grad2 = np.zeros(self.W2.shape)
         self.isTanH = isTanH
@@ -164,12 +164,12 @@ class TwoLayerNN:
         self.W1 = minW1
         self.W2 = minW2
 
-        if isPlot:
-            plt.plot(errorTrain,label = 'Training',linewidth=0.8)
-            plt.plot(errorHoldout, label = 'Holdout',linewidth=0.8)
-            plt.plot(errorTest, label = 'Test',linewidth=0.8)
-            plt.legend()
-            plt.show()
+        # if isPlot:
+        #     plt.plot(errorTrain,label = 'Training',linewidth=0.8)
+        #     plt.plot(errorHoldout, label = 'Holdout',linewidth=0.8)
+        #     plt.plot(errorTest, label = 'Test',linewidth=0.8)
+        #     plt.legend()
+        #     plt.show()
         return np.array(errorTrain)
 
     def test(self, test_images, test_labels, format=True):

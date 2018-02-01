@@ -10,13 +10,13 @@ def main():
 
     # Load the training img and labels
     train_images, train_labels = dat.getTrainingData(classes, classes, 0, None)
-    # train_images = train_images[0:100,:]
-    # train_labels = train_labels[0:100]
+    train_images = train_images[0:100,:]
+    train_labels = train_labels[0:100]
 
     # Load the testing img and labels
     test_images, test_labels = dat.getTestingData(classes, classes, 0, None)
-    # test_images = test_images[0:100,:]
-    # test_labels = test_labels[0:100]
+    test_images = test_images[0:100,:]
+    test_labels = test_labels[0:100]
 
     # # # Perform our input normalization.
     # train_images = ut.mean_center_pixel(train_images)
@@ -29,27 +29,23 @@ def main():
     # test_images = test_images / std
 
     # initiate 2 layer Neural Network with Softmax outputs and Logistic hidden layer
-    nn = tl.TwoLayerNN(train_images.shape[1], 64, 10, isTanH = True)
+    nn = tl.TwoLayerNN(train_images.shape[1], 64, 10, isTanH = False, normWeights = False)
 
-    # Train the Neural Network
-    nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=.001, T=100, minibatch=128,
-    earlyStop=3, reg=0.0001, regNorm = 2, alpha=0.95, isPlot = True, isNumerical = False, isShuffle = True)
-    #
-    # error_noshuffle = nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=.01, T=100, minibatch=128,
-    # earlyStop=3, reg=0.0001, regNorm = 2, alpha=0, isPlot = True, isNumerical = True, isShuffle = True)
-    #
-    # nn2 = tl.TwoLayerNN(train_images.shape[1], 64, 10, isTanH = False)
-    #
-    # # Train the Neural Networ
-    # error_shuffle = nn2.train(train_images, train_labels, test_images, test_labels, iter=100, n0=.01, T=100, minibatch=128,
-    # earlyStop=3, reg=0.0001, regNorm = 2, alpha=0, isPlot = True, isNumerical = False, isShuffle = True)
-    #
-    # plt.plot(1-error_noshuffle,label = 'Without Shuffling',linewidth=0.8)
-    # plt.plot(1-error_shuffle, label = 'Shuffling',linewidth=0.8)
-    # plt.xlabel("Epochs")
-    # plt.ylabel("Accuracy")
-    # plt.legend()
-    # plt.show()
+    error1 = nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=.01, T=10, minibatch=128,
+    earlyStop=3, reg=0.0001, regNorm = 2, alpha=0, isPlot = True, isNumerical = False, isShuffle = False)
+
+    nn2 = tl.TwoLayerNN(train_images.shape[1], 64, 10, isTanH = False, normWeights = False)
+
+    # Train the Neural Networ
+    error2 = nn2.train(train_images, train_labels, test_images, test_labels, iter=100, n0=.01, T=10, minibatch=128,
+    earlyStop=3, reg=0.0001, regNorm = 2, alpha=0, isPlot = True, isNumerical = False, isShuffle = True)
+
+    plt.plot(1-error1,label = 'Without Shuffling',linewidth=0.8)
+    plt.plot(1-error2, label = 'Shuffling',linewidth=0.8)
+    plt.xlabel("Epochs")
+    plt.ylabel("Accuracy")
+    plt.legend()
+    plt.show()
 
     # Test the Neural Network
     print "Error Rate: " + str(100 * nn.test(test_images,test_labels)) + str("%")
