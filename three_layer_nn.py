@@ -179,9 +179,9 @@ class ThreeLayerNN:
                 errorHoldout.append(self.test(holdout_images, holdout_labels))
                 errorTest.append(self.test(test_images, test_labels))
 
-                testLoss.append(self.k_entropy(self.run(train_images), train_labels, False))
-                holdoutLoss.append(self.k_entropy(self.run(holdout_images), holdout_labels))
-                trainLoss.append(self.k_entropy(self.run(test_images), test_labels))
+                testLoss.append(self.k_entropy(train_images, train_labels, False))
+                holdoutLoss.append(self.k_entropy(holdout_images, holdout_labels))
+                trainLoss.append(self.k_entropy(test_images, test_labels))
 
             print errorNew
 
