@@ -49,7 +49,7 @@ class TwoLayerNN:
         delta2 = np.subtract(self.run(batch_images), batch_labels)
         if self.isTanH:
             #TODO: Fix the gradient for tanh
-            delta1 = np.multiply(1.7159 * (2.0/3) *(np.multiply(self.Z[:, 1:], (self.Z[:, 1:])) + -1),np.matmul(delta2, self.W2.T[:, :-1]))
+            delta1 = np.multiply( (2.0/3.0)/1.7159 * np.multiply(1.7159 - self.Z[:, 1:],1.7159 + self.Z[:, 1:]) ,np.matmul(delta2, self.W2.T[:, 1:]))
         else:
             delta1 = np.multiply(np.multiply(self.Z[:, 1:],(1 - self.Z[:, 1:])),np.matmul(delta2, self.W2.T[:,1:]))
         grad2 = np.matmul(np.transpose(self.Z),delta2)
@@ -109,7 +109,7 @@ class TwoLayerNN:
         minError = 1
         minW1 = self.W1
         minW2 = self.W2
-        train_images, train_labels, holdout_images, holdout_labels = ut.get_holdout(train_images, train_labels, 10000)
+        train_images, train_labels, holdout_images, holdout_labels = ut.get_holdout(train_images, train_labels,0.1)
         train_images = ut.zscore(train_images)
         train_images = ut.pad_ones(train_images)
         train_labels = ut.one_hot_encoding(train_labels)
@@ -161,6 +161,7 @@ class TwoLayerNN:
             plt.plot(errorTest, label = 'Test',linewidth=0.8)
             plt.legend()
             plt.show()
+        return np.array(errorTrain)
 
     def test(self, test_images, test_labels, format=True):
         if format:

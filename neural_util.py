@@ -105,7 +105,7 @@ def logistic(x):
 
 # Special Tanh activation
 def stanh(x):
-    return np.clip(np.tanh((2.0 / 3) * x) * 1.7159, -EXP_CLIP, EXP_CLIP)
+    return 1.7159 * np.tanh((2.0 / 3.0) * x) 
 
 # Softmax activation function
 def softmax(x):
