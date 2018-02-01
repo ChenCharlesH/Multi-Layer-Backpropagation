@@ -9,18 +9,25 @@ class TwoLayerNN:
     W1 = np.array([])
     W2 = np.array([])
 
+    grad1 = np.array([])
+    grad2 = np.array([])
+
     X = np.array([])
     Z = np.array([])
     Y = np.array([])
     isTanH = False
 
     # Constructor
-    def __init__(self, n1, n2, n3, isTanH = False):
+    def __init__(self, n1, n2, n3, isTanH = False, normWeights = False):
         # TODO: Randomize the starting weights with N(0,sigma^2)
-        # self.W1 = np.random.normal(0,1/(n1+1),size = (n1 + 1, n2))
-        # self.W2 = np.random.normal(0,1/(n2+1),size = (n2 + 1, n3))
-        self.W1 = np.random.normal(0,0.1,size = (n1 + 1, n2))
-        self.W2 = np.random.normal(0,0.1,size = (n2 + 1, n3))
+        if normWeights:
+            self.W1 = np.random.normal(0,0.1,size = (n1 + 1, n2))
+            self.W2 = np.random.normal(0,0.1,size = (n2 + 1, n3))
+        else:
+            self.W1 = np.random.normal(0,1/(n1+1),size = (n1 + 1, n2))
+            self.W2 = np.random.normal(0,1/(n2+1),size = (n2 + 1, n3))
+        self.grad1 = np.zeros(self.W1.shape)
+        self.grad2 = np.zeros(self.W2.shape)
         self.isTanH = isTanH
         # self.W1 = np.random.randn(n1 + 1, n2)
         # self.W2 = np.random.randn(n2 + 1, n3)
@@ -73,8 +80,10 @@ class TwoLayerNN:
             print "Max Difference Second Layer Weights:"
             print np.max(np.absolute(np.subtract(grad2[1:10,0:5], agrad2[1:10,0:5])))
             print "---------------------------"
-        self.W2 = self.W2 + n*grad2/batch_labels.shape[0]
-        self.W1 = self.W1 + n*grad1/batch_labels.shape[0]
+        self.grad2 = alpha*self.grad2 + n*grad2/batch_labels.shape[0]
+        self.grad1 = alpha*self.grad1 + n*grad1/batch_labels.shape[0]
+        self.W2 = self.W2 + self.grad2
+        self.W1 = self.W1 + self.grad1
 
     def numApprox(self, images, labels, epsilon):
         grad1 = np.zeros(self.W1.shape)
