@@ -26,21 +26,17 @@ class TwoLayerNN:
         # self.W2 = np.random.randn(n2 + 1, n3)
 
     def run(self, data):
-        # Hidden Layer Input
+        # Hidden Layer
         self.X = np.copy(data)
         Aj = np.matmul(self.X, self.W1)
-
-        # Hidden Layer Output
         if self.isTanH:
             self.Z = ut.stanh(Aj)
         else:
             self.Z = ut.logistic(Aj)
         self.Z = ut.pad_ones(self.Z)
 
-        # Output Layer Input
+        # Output Layer
         Ak = np.matmul(self.Z, self.W2)
-
-        # Output Layer Output
         self.Y = ut.softmax(Ak)
 
         return self.Y
@@ -55,19 +51,19 @@ class TwoLayerNN:
             #TODO: Fix the gradient for tanh
             delta1 = np.multiply(1.7159 * (2.0/3) *(np.multiply(self.Z[:, 1:], (self.Z[:, 1:])) + -1),np.matmul(delta2, self.W2.T[:, :-1]))
         else:
-            delta1 = np.multiply(np.multiply(self.Z[:, 1:], (1 - self.Z[:, 1:])),np.matmul(delta2, self.W2.T[:,1:]))
+            delta1 = np.multiply(np.multiply(self.Z[:, 1:],(1 - self.Z[:, 1:])),np.matmul(delta2, self.W2.T[:,1:]))
         grad2 = np.matmul(np.transpose(self.Z),delta2)
         grad1 = np.matmul(np.transpose(self.X),delta1)
         if isNumerical:
             agrad1, agrad2 = self.numApprox(batch_images, batch_labels, 0.01)
-            # print "Grad1:"
-            # print grad1[0:10,0:5]
-            # print agrad1[0:10,0:5]
-            # print "---------------------------"
-            # print "Grad2:"
-            # print grad2[0:10,0:5]
-            # print agrad2[0:10,0:5]
-            # print "---------------------------"
+            print "Grad1:"
+            print grad1[0:10,0:5]
+            print agrad1[0:10,0:5]
+            print "---------------------------"
+            print "Grad2:"
+            print grad2[0:10,0:5]
+            print agrad2[0:10,0:5]
+            print "---------------------------"
             print "Max Difference Input Bias:"
             print np.max(np.absolute(np.subtract(grad1[0,0:5], agrad1[0,0:5])))
             print "Max Difference Output Bias:"
@@ -77,8 +73,8 @@ class TwoLayerNN:
             print "Max Difference Second Layer Weights:"
             print np.max(np.absolute(np.subtract(grad2[1:10,0:5], agrad2[1:10,0:5])))
             print "---------------------------"
-        self.W2 = float(alpha) * self.W2 + n*grad2/batch_labels.shape[0]
-        self.W1 = float(alpha) * self.W1 + n*grad1/batch_labels.shape[0]
+        self.W2 = self.W2 + n*grad2/batch_labels.shape[0]
+        self.W1 = self.W1 + n*grad1/batch_labels.shape[0]
 
     def numApprox(self, images, labels, epsilon):
         grad1 = np.zeros(self.W1.shape)
@@ -106,7 +102,7 @@ class TwoLayerNN:
     def train(
         self, train_images, train_labels, test_images, test_labels,
         iter=100, n0=0.001, T=100, minibatch=128, earlyStop=3, minIter=10,
-        reg=0.0001, regNorm = 2, alpha = 0.9, isPlot = False, isNumerical = False
+        reg=0.0001, regNorm = 2, alpha = 0.9, isPlot = False, isNumerical = False, isShuffle = True
     ):
         #TODO: Plot the outputs for isPlot
         stopCount = 0
@@ -126,6 +122,10 @@ class TwoLayerNN:
         for t in range(0,iter):
             #TODO: Randomize the data after every epoch through the data
             n = n0/(1+t/T)
+            if isShuffle:
+                idx = np.random.shuffle(np.arange(train_images.shape[0]))
+                train_images[:,:] = train_images[idx,:]
+                train_labels[:,:] = train_labels[idx,:]
 
             errorOld = self.test(holdout_images,holdout_labels)
             for m in range(0, int(np.ceil(float(train_images.shape[0])/minibatch))):

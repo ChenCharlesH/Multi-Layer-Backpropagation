@@ -14,24 +14,24 @@ def main():
     # Load the testing img and labels
     test_images, test_labels = dat.getTestingData(classes, classes, 0, None)
 
-    # Perform our input normalization.
-    train_images = ut.mean_center_pixel(train_images)
-    train_images, vec = ut.kl_expansion_equal_cov(train_images)
-    train_images = train_images
-    test_images = ut.mean_center_pixel(test_images)
-    test_images = np.dot(vec.T, test_images.T).T
-    test_images = test_images
+    # # Perform our input normalization.
+    # train_images = ut.mean_center_pixel(train_images)
+    # train_images, vec = ut.kl_expansion_equal_cov(train_images)
+    # train_images = train_images
+    # test_images = ut.mean_center_pixel(test_images)
+    # test_images = np.dot(vec.T, test_images.T).T
+    # test_images = test_images
 
-    # # Every-day I'm Shuffling
-    ut.permute(train_images, train_labels)
-    ut.permute(test_images, test_labels)
+    # # # Every-day I'm Shuffling
+    # ut.permute(train_images, train_labels)
+    # ut.permute(test_images, test_labels)
 
     # initiate 2 layer Neural Network with Softmax outputs and Logistic hidden layer
-    nn = tl.TwoLayerNN(train_images.shape[1], 64, 10, isTanH=False)
+    nn = tl.TwoLayerNN(train_images.shape[1], 64, 10, isTanH = False)
 
     # Train the Neural Networ
     nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=.01, T=100, minibatch=128,
-    earlyStop=3, reg=0.0001, regorm = 2, alpha=1, isPlot = True, isNumerical = False)
+    earlyStop=3, reg=0.0001, regNorm = 2, alpha=0, isPlot = True, isNumerical = True, isShuffle = True)
 
     # Test the Neural Network
     print "Error Rate: " + str(100 * nn.test(test_images,test_labels)) + str("%")
