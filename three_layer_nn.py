@@ -156,6 +156,9 @@ class ThreeLayerNN:
         errorTrain = []
         errorHoldout = []
         errorTest = []
+        testLoss = []
+        holdoutLoss = []
+        trainLoss = []
 
         for t in range(0,iter):
             #TODO: Randomize the data after every epoch through the data
@@ -175,6 +178,11 @@ class ThreeLayerNN:
                 errorTrain.append(self.test(train_images, train_labels, False))
                 errorHoldout.append(self.test(holdout_images, holdout_labels))
                 errorTest.append(self.test(test_images, test_labels))
+
+                testLoss.append(self.k_entropy(self.run(train_images), train_labels, False))
+                holdoutLoss.append(self.k_entropy(self.run(holdout_images), holdout_labels))
+                trainLoss.append(self.k_entropy(self.run(test_images), test_labels))
+
             print errorNew
 
             # Keep track of Best performance
@@ -195,13 +203,30 @@ class ThreeLayerNN:
         self.W2 = minW2
         self.W3 = minW3
 
-        # if isPlot:
-        #     plt.plot(errorTrain,label = 'Training',linewidth=0.8)
-        #     plt.plot(errorHoldout, label = 'Holdout',linewidth=0.8)
-        #     plt.plot(errorTest, label = 'Test',linewidth=0.8)
-        #     plt.legend()
-        #     plt.show()
+        if isPlot:
+            plt.plot(1-np.array(errorTrain),label = 'Training',linewidth=0.8)
+            plt.plot(1-np.array(errorHoldout), label = 'Holdout',linewidth=0.8)
+            plt.plot(1-np.array(errorTest), label = 'Test',linewidth=0.8)
+            plt.xlabel("Epochs")
+            plt.ylabel("Accuracy")
+            plt.legend()
+            plt.show()
+
+            plt.plot(np.array(trainLoss),label = 'Training',linewidth=0.8)
+            plt.plot(np.array(holdoutLoss), label = 'Holdout',linewidth=0.8)
+            plt.plot(np.array(testLoss), label = 'Test',linewidth=0.8)
+            plt.xlabel("Epochs")
+            plt.ylabel("Loss")
+            plt.legend()
+            plt.show()
         return np.array(errorTrain)
+
+    def k_entropy(self, test_images, test_labels, format=True):
+        if format:
+            test_images = ut.zscore(test_images)
+            test_images = ut.pad_ones(test_images)
+            test_labels = ut.one_hot_encoding(test_labels)
+        return ut.k_entropy(self.run(test_images), test_labels)
 
     def test(self, test_images, test_labels, format=True):
         if format:

@@ -19,14 +19,12 @@ def main():
     # test_labels = test_labels[0:100]
 
     # # # Perform our input normalization.
-    # train_images = ut.mean_center_pixel(train_images)
-    # train_images, vec = ut.kl_expansion_equal_cov(train_images)
-    # test_images = ut.mean_center_pixel(test_images)
-    # std = np.std(train_images, keepdims=True)
-    # std[std==0] = 1.0
-    # train_images = train_images / std
-    # test_images = np.dot(vec.T, test_images.T).T
-    # test_images = test_images / std
+    train_images = ut.mean_center_pixel(train_images)
+    train_images, vec = ut.kl_expansion_equal_cov(train_images)
+    test_images = ut.mean_center_pixel(test_images)
+    train_images = train_images
+    test_images = np.dot(vec.T, test_images.T).T
+    test_images = test_images
 
     # initiate 2 layer Neural Network with Softmax outputs and Logistic hidden layer
     nn = tl.ThreeLayerNN(train_images.shape[1], 256, 32, 10, isTanH = True, normWeights = True)
