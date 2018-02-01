@@ -15,12 +15,14 @@ def main():
     test_images, test_labels = dat.getTestingData(classes, classes, 0, None)
 
     # # Perform our input normalization.
-    # train_images = ut.mean_center_pixel(train_images)
-    # train_images, vec = ut.kl_expansion_equal_cov(train_images)
-    # train_images = train_images
-    # test_images = ut.mean_center_pixel(test_images)
-    # test_images = np.dot(vec.T, test_images.T).T
-    # test_images = test_images
+    train_images = ut.mean_center_pixel(train_images)
+    train_images, vec = ut.kl_expansion_equal_cov(train_images)
+    test_images = ut.mean_center_pixel(test_images)
+    std = np.std(train_images, keepdims=True)
+    std[std==0] = 1.0
+    train_images = train_images / std
+    test_images = np.dot(vec.T, test_images.T).T
+    test_images = test_images / std
 
     # # # Every-day I'm Shuffling
     # ut.permute(train_images, train_labels)
@@ -31,7 +33,7 @@ def main():
 
     # Train the Neural Networ
     nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=.01, T=100, minibatch=128,
-    earlyStop=3, reg=0.0001, regNorm = 2, alpha=0, isPlot = True, isNumerical = True, isShuffle = True)
+    earlyStop=3, reg=0.0001, regNorm = 2, alpha=0.9, isPlot = True, isNumerical = False, isShuffle = True)
 
     # Test the Neural Network
     print "Error Rate: " + str(100 * nn.test(test_images,test_labels)) + str("%")
