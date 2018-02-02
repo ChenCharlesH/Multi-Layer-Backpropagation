@@ -182,7 +182,6 @@ class TwoLayerNN:
         self.W2 = minW2
 
         if isPlot:
-<<<<<<< HEAD
             plt.plot(1-np.array(errorTrain),label = 'Training',linewidth=0.8)
             plt.plot(1-np.array(errorHoldout), label = 'Holdout',linewidth=0.8)
             plt.plot(1-np.array(errorTest), label = 'Test',linewidth=0.8)
@@ -196,11 +195,6 @@ class TwoLayerNN:
             plt.plot(np.array(testLoss), label = 'Test',linewidth=0.8)
             plt.xlabel("Epochs")
             plt.ylabel("Loss")
-=======
-            plt.plot(errorTrain,label = 'Training',linewidth=0.8)
-            plt.plot(errorHoldout, label = 'Holdout',linewidth=0.8)
-            plt.plot(errorTest, label = 'Test',linewidth=0.8)
->>>>>>> 76a0e9c1e3d3e6b54f0f5eb1a0cecac3841fd57b
             plt.legend()
             plt.show()
         return np.array(errorTrain)
