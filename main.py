@@ -1,6 +1,7 @@
 import neural_util as ut
 import numpy as np
 import two_layer_nn as tl
+import three_layer_nn as th
 import data as dat
 import matplotlib.pyplot as plt
 
@@ -26,11 +27,13 @@ def main():
     # test_images = np.dot(vec.T, test_images.T).T
     # test_images = test_images
 
+
+    
     # initiate 2 layer Neural Network with Softmax outputs and Logistic hidden layer
-    nn = tl.TwoLayerNN(train_images.shape[1], 64, 10, isTanH = True, normWeights = True)
+    nn = tl.TwoLayerNN(train_images.shape[1], 128, 10, isTanH = True, normWeights = True)
 
     error1 = nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=.002, T=25, minibatch=128,
-    earlyStop=3, reg=0.00000001, regNorm = 2, alpha=0.9, isPlot = True, isNumerical = False, isShuffle = True, isNesterov=True)
+    earlyStop=3, reg=0.00000001, regNorm = 2, alpha=0.9, isPlot = True, isNumerical = False, isShuffle = True, isNesterov = False)
 
     # nn2 = tl.TwoLayerNN(train_images.shape[1], 64, 10, isTanH = True, normWeights = True)
     #

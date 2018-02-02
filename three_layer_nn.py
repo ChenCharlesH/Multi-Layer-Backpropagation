@@ -102,6 +102,9 @@ class ThreeLayerNN:
         self.W3 = self.W3 + self.grad3
         self.W2 = self.W2 + self.grad2
         self.W1 = self.W1 + self.grad1
+        self.W3 = self.W3 - reg*ut.l_grad(self.W3, regNorm)
+        self.W2 = self.W2 - reg*ut.l_grad(self.W2, regNorm)
+        self.W1 = self.W1 - reg*ut.l_grad(self.W1, regNorm)
 
     def numApprox(self, images, labels, epsilon):
         grad1 = np.zeros(self.W1.shape)
@@ -179,9 +182,9 @@ class ThreeLayerNN:
                 errorHoldout.append(self.test(holdout_images, holdout_labels))
                 errorTest.append(self.test(test_images, test_labels))
 
-                testLoss.append(self.k_entropy(train_images, train_labels, False))
+                trainLoss.append(self.k_entropy(train_images, train_labels, False))
                 holdoutLoss.append(self.k_entropy(holdout_images, holdout_labels))
-                trainLoss.append(self.k_entropy(test_images, test_labels))
+                testLoss.append(self.k_entropy(test_images, test_labels))
 
             print errorNew
 
