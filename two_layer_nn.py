@@ -16,9 +16,10 @@ class TwoLayerNN:
     Z = np.array([])
     Y = np.array([])
     isTanH = False
+    isRelu = False
 
     # Constructor
-    def __init__(self, n1, n2, n3, isTanH = False, normWeights = False):
+    def __init__(self, n1, n2, n3, isTanH = False, isRelu = False, normWeights = False):
         # TODO: Randomize the starting weights with N(0,sigma^2)
         if normWeights:
             self.W1 = np.random.normal(0,1.0/np.sqrt(n1+1),size = (n1 + 1, n2))
@@ -28,6 +29,7 @@ class TwoLayerNN:
             self.W2 = np.random.normal(0,0.1,size = (n2 + 1, n3))
         self.grad1 = np.zeros(self.W1.shape)
         self.grad2 = np.zeros(self.W2.shape)
+        self.isRelu = isRelu
         self.isTanH = isTanH
         # self.W1 = np.random.randn(n1 + 1, n2)
         # self.W2 = np.random.randn(n2 + 1, n3)
@@ -38,6 +40,8 @@ class TwoLayerNN:
         Aj = np.matmul(self.X, self.W1)
         if self.isTanH:
             self.Z = ut.stanh(Aj)
+        elif self.isRelu:
+            self.Z = ut.relu(Aj)
         else:
             self.Z = ut.logistic(Aj)
         self.Z = ut.pad_ones(self.Z)
@@ -54,13 +58,15 @@ class TwoLayerNN:
     def backprop(self, batch_images, batch_labels, n, alpha, reg, regNorm, isNumerical = False, isNesterov=True):
         delta2 = np.subtract(self.run(batch_images), batch_labels)
         if self.isTanH:
-            delta1 = np.multiply( (2.0/3.0)/1.7159 * np.multiply(1.7159 - self.Z[:, 1:],1.7159 + self.Z[:, 1:]) ,np.matmul(delta2, self.W2.T[:, 1:]))
+            delta1 = np.multiply((2.0/3.0)/1.7159 * np.multiply(1.7159 - self.Z[:, 1:],1.7159 + self.Z[:, 1:]) ,np.matmul(delta2, self.W2.T[:, 1:]))
+        elif self.isRelu:
+            delta1 = np.multiply(np.sign(self.Z[:, 1:]),np.matmul(delta2, self.W2.T[:, 1:]))
         else:
             delta1 = np.multiply(np.multiply(self.Z[:, 1:],(1 - self.Z[:, 1:])),np.matmul(delta2, self.W2.T[:,1:]))
         grad2 = np.matmul(np.transpose(self.Z),delta2)
         grad1 = np.matmul(np.transpose(self.X),delta1)
         if isNumerical:
-            agrad1, agrad2 = self.numApprox(batch_images, batch_labels, 0.01)
+            agrad1, agrad2 = self.numApprox(batch_images, batch_labels, 0.001)
             print "Grad1:"
             print grad1[0:10,0:5]
             print agrad1[0:10,0:5]
@@ -68,6 +74,10 @@ class TwoLayerNN:
             print "Grad2:"
             print grad2[0:10,0:5]
             print agrad2[0:10,0:5]
+            print "---------------------------"
+            print "Diff:"
+            print np.subtract(grad1[0:10,0:5],agrad1[0:10,0:5])
+            print np.subtract(grad2[0:10,0:5],agrad2[0:10,0:5])
             print "---------------------------"
             print "Max Difference Input Bias:"
             print np.max(np.absolute(np.subtract(grad1[0,0:5], agrad1[0,0:5])))
@@ -164,12 +174,12 @@ class TwoLayerNN:
         self.W1 = minW1
         self.W2 = minW2
 
-        # if isPlot:
-        #     plt.plot(errorTrain,label = 'Training',linewidth=0.8)
-        #     plt.plot(errorHoldout, label = 'Holdout',linewidth=0.8)
-        #     plt.plot(errorTest, label = 'Test',linewidth=0.8)
-        #     plt.legend()
-        #     plt.show()
+        if isPlot:
+            plt.plot(errorTrain,label = 'Training',linewidth=0.8)
+            plt.plot(errorHoldout, label = 'Holdout',linewidth=0.8)
+            plt.plot(errorTest, label = 'Test',linewidth=0.8)
+            plt.legend()
+            plt.show()
         return np.array(errorTrain)
 
     def test(self, test_images, test_labels, format=True):

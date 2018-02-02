@@ -18,19 +18,20 @@ def main():
     # test_images = test_images[0:100,:]
     # test_labels = test_labels[0:100]
 
-    # # # Perform our input normalization.
-    # train_images = ut.mean_center_pixel(train_images)
-    # train_images, vec = ut.kl_expansion_equal_cov(train_images)
-    # test_images = ut.mean_center_pixel(test_images)
-    # train_images = train_images
-    # test_images = np.dot(vec.T, test_images.T).T
-    # test_images = test_images
+    # # Perform our input normalization.
+    train_images = ut.mean_center_pixel(train_images)
+    train_images, vec = ut.kl_expansion_equal_cov(train_images)
+    test_images = ut.mean_center_pixel(test_images)
+    train_images = train_images
+    test_images = np.dot(vec.T, test_images.T).T
+    test_images = test_images
 
     # initiate 2 layer Neural Network with Softmax outputs and Logistic hidden layer
-    nn = tl.TwoLayerNN(train_images.shape[1], 64, 10, isTanH = True, normWeights = True)
+    nn = tl.TwoLayerNN(train_images.shape[1], 64, 10, isTanH = False, isRelu=True, normWeights = True)
 
-    error1 = nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=.002, T=25, minibatch=128,
-    earlyStop=3, reg=0.00000001, regNorm = 2, alpha=0.9, isPlot = True, isNumerical = False, isShuffle = True, isNesterov=True)
+    error1 = nn.train(train_images, train_labels, test_images, test_labels, iter=100, n0=.01, T=20, minibatch=128,
+    earlyStop=3, reg=0, regNorm = 2, alpha=0.9, isPlot = True, isNumerical = False, isShuffle = True, isNesterov=True)
+    # reg = 0.0000001 for L2
 
     # nn2 = tl.TwoLayerNN(train_images.shape[1], 64, 10, isTanH = True, normWeights = True)
     #

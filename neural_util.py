@@ -106,6 +106,10 @@ def logistic(x):
 def stanh(x):
     return 1.7159 * np.tanh((2.0 / 3.0) * x)
 
+# ReLU activation
+def relu(x):
+    return np.maximum(0,x)
+
 # Softmax activation function
 def softmax(x):
     res = np.exp(-np.clip(x, -EXP_CLIP, EXP_CLIP))
